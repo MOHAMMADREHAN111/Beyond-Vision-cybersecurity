@@ -427,9 +427,9 @@ if nav == "🔍 Threat Scanner":
                             4. Potential Scam Context
                             """
                             response = genai_client.models.generate_content(
-                                model="gemini-2.5-flash",
-                                contents=[prompt, media_part],
-                            )
+    model="gemini-3.8-flash",
+    contents=[prompt, media_part],
+)
                             st.session_state["deepfake_report"] = response.text
                         except Exception as e:
                             st.session_state["deepfake_report"] = None
@@ -571,9 +571,9 @@ if nav == "🔍 Threat Scanner":
                         - Concise Threat Summary
                         """
                         response = genai_client.models.generate_content(
-                            model="gemini-2.5-flash",
-                            contents=prompt,
-                        )
+    model="gemini-3.8-flash",
+    contents=prompt,
+)
                         st.session_state["llm_report"] = response.text
                     except Exception as e:
                         st.session_state["llm_report"] = f"⚠️ Gemini connection error: {str(e)}"
