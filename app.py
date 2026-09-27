@@ -517,33 +517,28 @@ if nav == "🔍 Threat Scanner":
         if st.session_state.get("scan_result"):
             res = st.session_state["scan_result"]
 
-            st.markdown("<h3 class='serif-header' style='margin-top: 25px; color: #D4AF37 !important;'>🧠 Message & Content Classifier</h3>", unsafe_allow_html=True)
+            # 1. Machine Learning Analysis Block
+            st.markdown("<h3 class='serif-header' style='margin-top: 25px; color: #F7F5EB !important;'>🧠 Machine Learning Analysis</h3>", unsafe_allow_html=True)
+            
+            if res["ai_label"] in ["SPAM", "LABEL_1", "1"]:
+                st.error(f"**Verdict: SPAM** (Confidence: {res['ai_score']}%)")
+            else:
+                st.success(f"**Verdict: SAFE** (Confidence: {res['ai_score']}%)")
 
-            is_malicious = res["risk_score"] >= 50 or res["ai_label"] in ["SPAM", "LABEL_1", "1"]
-            verdict_badge_class = "verdict-spam" if is_malicious else "verdict-safe"
-            verdict_title = "MALICIOUS / FRAUDULENT" if is_malicious else "SAFE / CLEAN"
+            # 2. Heuristic Analysis Block
+            st.markdown("<h3 class='serif-header' style='margin-top: 25px; color: #F7F5EB !important;'>⚙️ Heuristic Analysis</h3>", unsafe_allow_html=True)
+            
+            # Thresholds adjusted so 50 shows as LOW RISK matching your screenshot
+            if res["risk_score"] > 75:
+                st.error(f"🚨 HIGH RISK (Score: {res['risk_score']}/100)")
+            elif res["risk_score"] > 50:
+                st.warning(f"⚠️ MEDIUM RISK (Score: {res['risk_score']}/100)")
+            else:
+                st.success(f"✅ LOW RISK (Score: {res['risk_score']}/100)")
 
-            st.markdown(f"""
-                <div class='verdict-badge {verdict_badge_class}'>
-                    <span style='font-size: 1.15rem; font-weight: 600;'>Threat Verdict: {verdict_title}</span>
-                    <span style='font-size: 0.88rem; opacity: 0.85;'>(Combined Risk Score: {res['risk_score']}/100)</span>
-                </div>
-            """, unsafe_allow_html=True)
-
-            # Confidence Track
-            st.markdown(f"""
-                <div class="confidence-wrap">
-                    <div class="confidence-track">
-                        <div class="confidence-fill" style="width: {res['risk_score']}%; background: {'var(--danger)' if is_malicious else 'var(--safe)'};"></div>
-                    </div>
-                    <div class="confidence-caption">Risk Index: <b>{res['risk_score']}%</b> | Model Confidence: <b>{res['ai_score']}%</b></div>
-                </div>
-            """, unsafe_allow_html=True)
-
-            # Heuristics Section
-            st.markdown("<h3 class='serif-header' style='margin-top: 15px; font-size: 1.25rem; color: #EAE3CB !important;'>⚙️ Heuristic Breakdown</h3>", unsafe_allow_html=True)
-            for item in res.get("heuristics", []):
-                st.markdown(f"<p style='color: var(--muted); font-size: 0.92rem; margin: 4px 0;'>• {item}</p>", unsafe_allow_html=True)
+            # Breakdown Text
+            if res.get("heuristics"):
+                st.markdown(f"<p style='color: var(--cream); font-size: 0.95rem; margin-top: 10px;'><b>Breakdown:</b> {' '.join(res['heuristics'])}</p>", unsafe_allow_html=True)
 
             if res["urls"]:
                 st.markdown("<p style='color: var(--cream); font-weight: 500; margin-top: 15px; margin-bottom: 5px;'>Detected Links:</p>", unsafe_allow_html=True)
