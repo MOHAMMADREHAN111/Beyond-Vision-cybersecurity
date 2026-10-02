@@ -554,8 +554,7 @@ if nav == "🔍 Threat Scanner":
                     scan_disabled = genai_client is None
                     if scan_disabled:
                         st.info("Deepfake scanning requires a Gemini API key. Add GEMINI_API_KEY in Streamlit Secrets.")
-
-                   if st.button("🔍 Run Deepfake Scan", disabled=scan_disabled):
+                      if st.button("🔍 Run Deepfake Scan", disabled=scan_disabled):
                         with st.spinner("Analyzing media for AI generation artifacts..."):
                             prompt = (
                                 "You are a senior forensic analyst for 'Beyond Vision'. "
