@@ -31,6 +31,8 @@ except ImportError:
 st.set_page_config(page_title="Beyond Vision", page_icon="☁️", layout="centered")
 clean_layout_style = """
     <style>
+    clean_layout_style = """
+    <style>
     /* 1. Removes the top header space and pulls the content up */
     header {visibility: hidden; height: 0px;}
     .stAppHeader {display: none; visibility: hidden;}
@@ -38,10 +40,15 @@ clean_layout_style = """
         padding-top: 1rem !important;
     }
 
-    /* 2. Hides only Streamlit's default toolbar, GitHub icon, and red badge */
+    /* 2. Hides desktop & mobile Streamlit toolbars, badges, and floating icons */
     #MainMenu {visibility: hidden;}
     .stAppDeployButton {display: none;}
     [data-testid="stDecoration"] {display: none;}
+    
+    /* Target mobile-specific floating viewer badges and menus */
+    .viewerBadge_container__1QSob {display: none !important;}
+    [data-testid="stStatusWidget"] {display: none !important;}
+    div[class*="viewerBadge"] {display: none !important;}
     
     /* 3. Keeps your custom text, markdown components, and LinkedIn link visible */
     .element-container markdown, a {
