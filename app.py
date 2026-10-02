@@ -576,7 +576,7 @@ if nav == "🔍 Threat Scanner":
 
                             st.session_state["deepfake_report"] = clean_markdown(report)
 
-            if st.session_state["deepfake_report"]:
+            if st.session_state.get("deepfake_report"):
                 st.markdown("<h3 class='serif-header' style='margin-top: 25px; color: #D4AF37 !important;'>🤖 Forensics Report</h3>", unsafe_allow_html=True)
                 st.info(st.session_state["deepfake_report"])
 
