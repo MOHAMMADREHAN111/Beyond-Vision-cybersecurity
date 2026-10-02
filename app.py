@@ -31,32 +31,32 @@ except ImportError:
 st.set_page_config(page_title="Beyond Vision", page_icon="☁️", layout="centered")
 clean_layout_style = """
     <style>
-    clean_layout_style = """
+# --- UI CLEANUP: REMOVE STREAMLIT BRANDING ---
+st.markdown(
+    """
     <style>
-    /* 1. Removes the top header space and pulls the content up */
-    header {visibility: hidden; height: 0px;}
-    .stAppHeader {display: none; visibility: hidden;}
-    .block-container {
-        padding-top: 1rem !important;
-    }
-
-    /* 2. Hides desktop & mobile Streamlit toolbars, badges, and floating icons */
-    #MainMenu {visibility: hidden;}
-    .stAppDeployButton {display: none;}
-    [data-testid="stDecoration"] {display: none;}
+    /* 1. Eliminate top header space and pull content up */
+    header {visibility: hidden !important; height: 0px !important;}
+    .stAppHeader {display: none !important; visibility: hidden !important;}
+    .block-container {padding-top: 1rem !important;}
     
-    /* Target mobile-specific floating viewer badges and menus */
+    /* 2. Hide desktop & mobile Streamlit toolbars, badges, and floating icons */
+    #MainMenu {visibility: hidden !important;}
+    .stAppDeployButton {display: none !important;}
+    [data-testid="stDecoration"] {display: none !important;}
+    
+    /* 3. Target mobile-specific floating viewer badges and menus */
     .viewerBadge_container__1QSob {display: none !important;}
     [data-testid="stStatusWidget"] {display: none !important;}
     div[class*="viewerBadge"] {display: none !important;}
     
-    /* 3. Keeps your custom text, markdown components, and LinkedIn link visible */
-    .element-container markdown, a {
-        visibility: visible !important;
-    }
+    /* 4. Ensure your custom text, markdown components, and LinkedIn link stay visible */
+    .element-container markdown, a {visibility: visible !important;}
     </style>
-"""
-st.markdown(clean_layout_style, unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True
+)   
+    
 
 # ==========================================
 # STYLE — Dark Radial Canvas & Gold Accents
