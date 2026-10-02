@@ -31,29 +31,27 @@ except ImportError:
 st.set_page_config(page_title="Beyond Vision", page_icon="☁️", layout="centered")
 
 # --- UI CLEANUP: REMOVE STREAMLIT BRANDING ---
-st.markdown(
-    """
-   /* 1. Eliminate top header space and pull content up */
-    header {visibility: hidden !important; height: 0px !important;}
-    .stAppHeader {display: none !important; visibility: hidden !important;}
-    .block-container {padding-top: 1rem !important;}
-    
-    /* 2. Hide desktop & mobile Streamlit toolbars, badges, and floating icons */
-    #MainMenu {visibility: hidden !important;}
-    .stAppDeployButton {display: none !important;}
-    [data-testid="stDecoration"] {display: none !important;}
-    
-    /* 3. Target mobile-specific floating viewer badges and menus */
-    .viewerBadge_container__1QSob {display: none !important;}
-    [data-testid="stStatusWidget"] {display: none !important;}
-    div[class*="viewerBadge"] {display: none !important;}
-    
-    /* 4. Ensure your custom text, markdown components, and LinkedIn link stay visible */
-    .element-container markdown, a {visibility: visible !important;}
-    </style>
-    """,
-    unsafe_allow_html=True
-)   
+st.markdown("""
+<style>
+/* 1. Eliminate top header space and pull content up */
+header {visibility: hidden !important; height: 0px !important;}
+.stAppHeader {display: none !important; visibility: hidden !important;}
+.block-container {padding-top: 1rem !important;}
+
+/* 2. Hide desktop & mobile Streamlit toolbars, badges, and floating icons */
+#MainMenu {visibility: hidden !important;}
+.stAppDeployButton {display: none !important;}
+[data-testid="stDecoration"] {display: none !important;}
+
+/* 3. Target mobile-specific floating viewer badges and menus */
+.viewerBadge_container__1QSob {display: none !important;}
+[data-testid="stStatusWidget"] {display: none !important;}
+div[class*="viewerBadge"] {display: none !important;}
+
+/* 4. Ensure your custom text, markdown components, and LinkedIn link stay visible */
+.element-container markdown, a {visibility: visible !important;}
+</style>
+""", unsafe_allow_html=True)  
     
 
 # ==========================================
