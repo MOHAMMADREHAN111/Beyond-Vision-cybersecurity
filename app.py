@@ -29,7 +29,18 @@ except ImportError:
     GENAI_AVAILABLE = False
 
 st.set_page_config(page_title="Beyond Vision", page_icon="☁️", layout="centered")
+import streamlit as st
 
+hide_github_icon_style = """
+    <style>
+    /* Hides the GitHub icon link in the top right */
+    .stAppToolbar {visibility: hidden;}
+    
+    /* Keeps the Streamlit header functional but cleans up unwanted buttons */
+    header {background: transparent;}
+    </style>
+"""
+st.markdown(hide_github_icon_style, unsafe_allow_html=True)
 # ==========================================
 # STYLE — Dark Radial Canvas & Gold Accents
 # ==========================================
