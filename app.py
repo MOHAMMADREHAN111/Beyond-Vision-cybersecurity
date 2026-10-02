@@ -5,10 +5,10 @@ import html as html_lib
 from urllib.parse import urlparse
 import streamlit as st
 from PIL import Image
-import streamlit as st
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 from groq import Groq
+
 # ------------------------------------------------------------------
 # Optional-dependency imports
 # ------------------------------------------------------------------
@@ -325,21 +325,15 @@ def get_api_key():
     except Exception:
         pass
     return os.environ.get("GEMINI_API_KEY")
-    def get_groq_api_key():
-        try:
+
+def get_groq_api_key():
+    try:
         if "GROQ_API_KEY" in st.secrets:
             return st.secrets["GROQ_API_KEY"]
     except Exception:
         pass
     return os.environ.get("GROQ_API_KEY")
-@st.cache_resource(show_spinner=False)
-def get_genai_client(api_key):
-    if not GENAI_AVAILABLE or not api_key:
-        return None
-    try:
-        return genai.Client(api_key=api_key)
-    except Exception:
-        return None
+
 @st.cache_resource(show_spinner=False)
 def get_genai_client(api_key):
     if not GENAI_AVAILABLE or not api_key:
@@ -349,7 +343,6 @@ def get_genai_client(api_key):
     except Exception:
         return None
 
-# YOUR NEW GROQ CLIENT GOES HERE:
 @st.cache_resource(show_spinner=False)
 def get_groq_client(api_key):
     if not api_key:
@@ -363,16 +356,13 @@ def get_groq_client(api_key):
 def run_ocr(image_bytes: bytes) -> str:
     image = Image.open(io.BytesIO(image_bytes))
     return pytesseract.image_to_string(image)
-@st.cache_data(show_spinner=False)
-def run_ocr(image_bytes: bytes) -> str:
-    image = Image.open(io.BytesIO(image_bytes))
-    return pytesseract.image_to_string(image)
 
 ai_classifier = load_classifier()
 API_KEY = get_api_key()
 genai_client = get_genai_client(API_KEY)
 GROQ_API_KEY = get_groq_api_key()
 groq_client = get_groq_client(GROQ_API_KEY)
+
 # ==========================================
 # HEADER
 # ==========================================
