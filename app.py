@@ -450,7 +450,7 @@ if nav == "🔍 Threat Scanner":
                             try:
                                 fallback = groq_client.chat.completions.create(
                                     messages=[{"role": "user", "content": prompt}],
-                                    model="llama-3.1-8b-instant"
+                                    model="llama3-8b-8192"
                                 )
                                 st.session_state["deepfake_report"] = f"**[Groq Backup Analysis Activated]**\n\n{fallback.choices[0].message.content}"
                             except Exception as fallback_error:
@@ -597,7 +597,7 @@ if nav == "🔍 Threat Scanner":
                         try:
                             fallback = groq_client.chat.completions.create(
                                 messages=[{"role": "user", "content": prompt}],
-                                model="llama-3.1-8b-instant"
+                                model="llama3-8b-8192"
                             )
                             st.session_state["llm_report"] = f"**[Groq Backup Analysis Activated]**\n\n{fallback.choices[0].message.content}"
                         except Exception as fallback_error:
