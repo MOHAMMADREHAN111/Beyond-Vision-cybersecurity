@@ -29,28 +29,28 @@ except ImportError:
     GENAI_AVAILABLE = False
 
 st.set_page_config(page_title="Beyond Vision", page_icon="☁️", layout="centered")
-hide_streamlit_badge = """
+clean_layout_style = """
     <style>
-    /* Hides the floating 'Hosted with Streamlit' badge */
-    [data-testid="stDecoration"] {display: none;}
-    footer {visibility: hidden;}
-    .viewerBadge_container__1QSob {display: none;}
-    #MainMenu {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_streamlit_badge, unsafe_allow_html=True)
-import streamlit as st
+    /* 1. Removes the top header space and pulls the content up */
+    header {visibility: hidden; height: 0px;}
+    .stAppHeader {display: none; visibility: hidden;}
+    .block-container {
+        padding-top: 1rem !important;
+    }
 
-hide_github_icon_style = """
-    <style>
-    /* Hides the GitHub icon link in the top right */
-    .stAppToolbar {visibility: hidden;}
+    /* 2. Hides only Streamlit's default toolbar, GitHub icon, and red badge */
+    #MainMenu {visibility: hidden;}
+    .stAppDeployButton {display: none;}
+    [data-testid="stDecoration"] {display: none;}
     
-    /* Keeps the Streamlit header functional but cleans up unwanted buttons */
-    header {background: transparent;}
+    /* 3. Keeps your custom text, markdown components, and LinkedIn link visible */
+    .element-container markdown, a {
+        visibility: visible !important;
+    }
     </style>
 """
-st.markdown(hide_github_icon_style, unsafe_allow_html=True)
+st.markdown(clean_layout_style, unsafe_allow_html=True)
+
 # ==========================================
 # STYLE — Dark Radial Canvas & Gold Accents
 # ==========================================
