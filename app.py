@@ -554,11 +554,11 @@ if nav == "🔍 Threat Scanner":
                     scan_disabled = genai_client is None
                     if scan_disabled:
                         st.info("Deepfake scanning requires a Gemini API key. Add GEMINI_API_KEY in Streamlit Secrets.")
-                      if st.button("🔍 Run Deepfake Scan", disabled=scan_disabled):
-                        with
-                        if st.button("🔍 Run Deepfake Scan", disabled=scan_disabled):
+
+                    if st.button("🔍 Run Deepfake Scan", disabled=scan_disabled):
                         with st.spinner("Analyzing media for AI generation artifacts..."):
                             prompt = "You are a senior forensic analyst for 'Beyond Vision'. Analyze the user's intent and context for indicators of AI generation, synthetic manipulation, or deepfake/voice-cloning artifacts. Provide: 1. Synthetic Probability Verdict (Real vs. AI-Generated) 2. Confidence Score (0-100%) 3. Key Forensic Observations 4. Potential Scam Context"
+                            
                             report = None
                             try:
                                 media_part = types.Part.from_bytes(data=media_bytes, mime_type=media_type)
@@ -575,8 +575,6 @@ if nav == "🔍 Threat Scanner":
                                     report = f"⚠️ All engines are fully maxed out.\nGemini Error: {e}\nGroq Error: {fallback_error}"
 
                             st.session_state["deepfake_report"] = clean_markdown(report)
-                            else:
-                                st.session_state["deepfake_report"] = f"⚠️ All configured engines failed to process this media.\n\nLogs:\n" + "\n".join(esc(e) for e in errors)
 
             if st.session_state["deepfake_report"]:
                 st.markdown("<h3 class='serif-header' style='margin-top: 25px; color: #D4AF37 !important;'>🤖 Forensics Report</h3>", unsafe_allow_html=True)
