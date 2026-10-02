@@ -29,13 +29,11 @@ except ImportError:
     GENAI_AVAILABLE = False
 
 st.set_page_config(page_title="Beyond Vision", page_icon="☁️", layout="centered")
-clean_layout_style = """
-    <style>
+
 # --- UI CLEANUP: REMOVE STREAMLIT BRANDING ---
 st.markdown(
     """
-    <style>
-    /* 1. Eliminate top header space and pull content up */
+   /* 1. Eliminate top header space and pull content up */
     header {visibility: hidden !important; height: 0px !important;}
     .stAppHeader {display: none !important; visibility: hidden !important;}
     .block-container {padding-top: 1rem !important;}
