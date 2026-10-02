@@ -29,6 +29,16 @@ except ImportError:
     GENAI_AVAILABLE = False
 
 st.set_page_config(page_title="Beyond Vision", page_icon="☁️", layout="centered")
+hide_streamlit_badge = """
+    <style>
+    /* Hides the floating 'Hosted with Streamlit' badge */
+    [data-testid="stDecoration"] {display: none;}
+    footer {visibility: hidden;}
+    .viewerBadge_container__1QSob {display: none;}
+    #MainMenu {visibility: hidden;}
+    </style>
+"""
+st.markdown(hide_streamlit_badge, unsafe_allow_html=True)
 import streamlit as st
 
 hide_github_icon_style = """
