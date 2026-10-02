@@ -555,10 +555,34 @@ if nav == "🔍 Threat Scanner":
                     if scan_disabled:
                         st.info("Deepfake scanning requires a Gemini API key. Add GEMINI_API_KEY in Streamlit Secrets.")
 
-                    if st.button("🔍 Run Deepfake Scan", disabled=scan_disabled):
+                   if st.button("🔍 Run Deepfake Scan", disabled=scan_disabled):
                         with st.spinner("Analyzing media for AI generation artifacts..."):
-                            media_part = types.Part.from_bytes(data=media_bytes, mime_type=media_type)
-                            prompt = "You are a senior forensic analyst for 'Beyond Vision'. Analyze this media file for indicators of AI generation, synthetic manipulation, or deepfake/voice-cloning artifacts. Provide: 1. Synthetic Probability Verdict (Real vs. AI-Generated) 2. Confidence Score (0-100%) 3. Key Forensic Observations 4. Potential Scam Context"
+                            prompt = (
+                                "You are a senior forensic analyst for 'Beyond Vision'. "
+                                "Analyze the user's intent and context for indicators of AI generation, "
+                                "synthetic manipulation, or deepfake/voice-cloning artifacts. Provide: "
+                                "1. Synthetic Probability Verdict (Real vs. AI-Generated) "
+                                "2. Confidence Score (0-100%) "
+                                "3. Key Forensic Observations "
+                                "4. Potential Scam Context"
+                            )
+                            
+                            report = None
+                            try:
+                                media_part = types.Part.from_bytes(data=media_bytes, mime_type=media_type)
+                                report, model = gemini_generate([prompt, media_part])
+                            except Exception as e:
+                                st.toast("Gemini quota/servers exhausted. Rerouting to Groq backup...", icon="🔄")
+                                try:
+                                    fallback = groq_client.chat.completions.create(
+                                        messages=[{"role": "user", "content": prompt + "\n[Note: Media file was uploaded, but primary vision engine is rate-limited. Provide general forensic indicators for this file type]."}],
+                                        model="llama3-8b-8192"
+                                    )
+                                    report = f"**[Groq Text-Fallback Analysis]**\n\n{fallback.choices[0].message.content}"
+                                except Exception as fallback_error:
+                                    report = f"⚠️ All engines are fully maxed out.\nGemini Error: {e}\nGroq Error: {fallback_error}"
+
+                            st.session_state["deepfake_report"] = clean_markdown(report)
                             
                             errors = []
                             report = None
