@@ -6,3 +6,5 @@ pandas
 transformers
 torch
 google-genai
+google-generativeai
+groq
