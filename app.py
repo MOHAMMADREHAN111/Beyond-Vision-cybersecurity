@@ -3,10 +3,8 @@ import os
 import re
 import html as html_lib
 from urllib.parse import urlparse
-import streamlit as st
 from PIL import Image
-import google.generativeai as genai
-from google.api_core.exceptions import ResourceExhausted
+import streamlit as st
 from groq import Groq
 
 # ------------------------------------------------------------------
@@ -36,22 +34,15 @@ st.set_page_config(page_title="Beyond Vision", page_icon="☁️", layout="cente
 # --- UI CLEANUP: REMOVE STREAMLIT BRANDING ---
 st.markdown("""
 <style>
-/* 1. Eliminate top header space and pull content up */
 header {visibility: hidden !important; height: 0px !important;}
 .stAppHeader {display: none !important; visibility: hidden !important;}
 .block-container {padding-top: 1rem !important;}
-
-/* 2. Hide desktop & mobile Streamlit toolbars, badges, and floating icons */
 #MainMenu {visibility: hidden !important;}
 .stAppDeployButton {display: none !important;}
 [data-testid="stDecoration"] {display: none !important;}
-
-/* 3. Target mobile-specific floating viewer badges and menus */
 .viewerBadge_container__1QSob {display: none !important;}
 [data-testid="stStatusWidget"] {display: none !important;}
 div[class*="viewerBadge"] {display: none !important;}
-
-/* 4. Ensure your custom text, markdown components, and LinkedIn link stay visible */
 .element-container markdown, a {visibility: visible !important;}
 </style>
 """, unsafe_allow_html=True)  
@@ -63,7 +54,6 @@ div[class*="viewerBadge"] {display: none !important;}
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,500&family=Inter:wght@300;400;500;600&display=swap');
-
     :root {
         --gold: #D4AF37;
         --gold-soft: #E8C766;
@@ -77,30 +67,23 @@ st.markdown("""
         --plate-bg: rgba(255,255,255,0.03);
         --plate-border: rgba(255,255,255,0.08);
     }
-
     .stApp {
         background: radial-gradient(circle at 50% 0%, #2A2D24 0%, #0D0E0B 70%) !important;
         font-family: 'Inter', sans-serif;
     }
-
     #MainMenu, footer[data-testid="stFooter"], header[data-testid="stHeader"] {
         background: transparent;
     }
-
     h1, h2, h3, .serif-header {
         font-family: 'Playfair Display', serif !important;
         color: var(--cream) !important;
         font-weight: 500;
         letter-spacing: 0.3px;
     }
-
     p, li, label, span { font-family: 'Inter', sans-serif; }
-
     ::-webkit-scrollbar { height: 6px; width: 6px; }
     ::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.4); border-radius: 10px; }
     ::-webkit-scrollbar-track { background: transparent; }
-
-    /* Nav dressed up as custom pills */
     div[data-testid="stRadio"] > div[role="radiogroup"] {
         display: flex;
         flex-wrap: wrap;
@@ -133,8 +116,6 @@ st.markdown("""
         font-size: 0.92rem;
         margin: 0;
     }
-
-    /* Text areas & dropzone */
     .stTextArea textarea {
         background: rgba(255,255,255,0.03) !important;
         color: var(--cream) !important;
@@ -155,8 +136,6 @@ st.markdown("""
         color: var(--cream) !important;
         border: 1px solid rgba(212,175,55,0.3) !important;
     }
-
-    /* Buttons */
     .stButton button {
         background: linear-gradient(135deg, var(--gold) 0%, #B8912B 100%) !important;
         color: #16170F !important;
@@ -170,8 +149,6 @@ st.markdown("""
         transform: translateY(-1px);
         box-shadow: 0 6px 20px rgba(212,175,55,0.25);
     }
-
-    /* Native container plate */
     [data-testid="stVerticalBlockBorderWrapper"] {
         border-radius: 24px !important;
         background-color: rgba(255, 255, 255, 0.02) !important;
@@ -179,8 +156,6 @@ st.markdown("""
         box-shadow: 0 10px 30px rgba(0,0,0,0.4) !important;
         padding: 15px !important;
     }
-
-    /* Verdict badge */
     .verdict-badge {
         display: inline-flex;
         flex-direction: column;
@@ -196,8 +171,6 @@ st.markdown("""
     .verdict-spam { background: rgba(195,103,107,0.12); border-color: rgba(195,103,107,0.35); color: var(--danger); }
     .verdict-safe { background: rgba(139,185,143,0.12); border-color: rgba(139,185,143,0.35); color: var(--safe); }
     .verdict-unknown { background: rgba(140,154,166,0.12); border-color: rgba(140,154,166,0.35); color: var(--unknown); }
-
-    /* Confidence meter */
     .confidence-wrap { margin: 4px 0 20px 0; }
     .confidence-track {
         width: 100%;
@@ -212,8 +185,6 @@ st.markdown("""
         font-size: 0.82rem;
         color: var(--muted);
     }
-
-    /* Detected link chips */
     .link-chip {
         display: inline-block;
         background: rgba(255,255,255,0.03);
@@ -225,8 +196,6 @@ st.markdown("""
     }
     .link-chip a { color: var(--gold); text-decoration: none; }
     .link-chip a:hover { text-decoration: underline; }
-
-    /* Slider Container */
     .slider-container {
         display: flex;
         overflow-x: auto;
@@ -237,7 +206,6 @@ st.markdown("""
         scrollbar-width: none;
     }
     .slider-container::-webkit-scrollbar { display: none; }
-
     .dark-plate {
         min-width: min(320px, 88vw);
         max-width: 480px;
@@ -266,8 +234,6 @@ st.markdown("""
         margin-top: -8px;
         margin-bottom: 10px;
     }
-
-    /* Footer */
     .footer {
         text-align: center;
         margin-top: 70px;
@@ -462,32 +428,33 @@ if nav == "🔍 Threat Scanner":
 
                 if st.button("🔍 Run Deepfake Scan", disabled=scan_disabled):
                     with st.spinner("Analyzing media for AI generation artifacts..."):
+                        media_part = types.Part.from_bytes(data=media_bytes, mime_type=media_type)
+                        prompt = """
+                        You are a senior forensic analyst for 'Beyond Vision'. Analyze this media file for indicators of AI generation, synthetic manipulation, or deepfake/voice-cloning artifacts.
+                        Provide:
+                        1. Synthetic Probability Verdict (Real vs. AI-Generated)
+                        2. Confidence Score (0-100%)
+                        3. Key Forensic Observations
+                        4. Potential Scam Context
+                        """
                         try:
-                            media_part = types.Part.from_bytes(data=media_bytes, mime_type=media_type)
-                            prompt = """
-                            You are a senior forensic analyst for 'Beyond Vision'. Analyze this media file for indicators of AI generation, synthetic manipulation, or deepfake/voice-cloning artifacts.
-                            Provide:
-                            1. Synthetic Probability Verdict (Real vs. AI-Generated)
-                            2. Confidence Score (0-100%)
-                            3. Key Forensic Observations
-                            4. Potential Scam Context
-                            """
+                            # Primary API Call (Gemini)
+                            response = genai_client.models.generate_content(
+                                model="gemini-3.8-flash",
+                                contents=[prompt, media_part],
+                            )
+                            st.session_state["deepfake_report"] = response.text
+                        except Exception as e:
+                            # Catch ALL API errors (429 Rate limits, 503 Overloads, etc.) and fallback to Groq
+                            st.toast("Gemini unavailable. Switching to Groq fallback...", icon="🔄")
                             try:
-                                response = genai_client.models.generate_content(
-                                    model="gemini-3.8-flash",
-                                    contents=[prompt, media_part],
-                                )
-                                st.session_state["deepfake_report"] = response.text
-                            except ResourceExhausted:
-                                st.toast("Gemini is busy. Switching to backup engine...", icon="🔄")
                                 fallback = groq_client.chat.completions.create(
                                     messages=[{"role": "user", "content": prompt}],
                                     model="llama-3.1-8b-instant"
                                 )
-                                st.session_state["deepfake_report"] = f"[Groq Backup Analysis]\n{fallback.choices[0].message.content}"
-                        except Exception as e:
-                            st.session_state["deepfake_report"] = None
-                            st.error(f"Scan failed: {e}")
+                                st.session_state["deepfake_report"] = f"**[Groq Backup Analysis Activated]**\n\n{fallback.choices[0].message.content}"
+                            except Exception as fallback_error:
+                                st.session_state["deepfake_report"] = f"⚠️ All analytical engines are currently down.\n\nPrimary Error: {e}\nFallback Error: {fallback_error}"
 
             if st.session_state["deepfake_report"]:
                 st.markdown("<h3 class='serif-header' style='margin-top: 25px; color: #D4AF37 !important;'>🤖 Forensics Report</h3>", unsafe_allow_html=True)
@@ -582,7 +549,6 @@ if nav == "🔍 Threat Scanner":
             # 2. Heuristic Analysis Block
             st.markdown("<h3 class='serif-header' style='margin-top: 25px; color: #F7F5EB !important;'>⚙️ Heuristic Analysis</h3>", unsafe_allow_html=True)
             
-            # Thresholds adjusted so 50 shows as LOW RISK matching your screenshot
             if res["risk_score"] > 75:
                 st.error(f"🚨 HIGH RISK (Score: {res['risk_score']}/100)")
             elif res["risk_score"] > 50:
@@ -605,35 +571,37 @@ if nav == "🔍 Threat Scanner":
             llm_disabled = genai_client is None
             if st.button("✨ Run Deep LLM Contextual Analysis", disabled=llm_disabled):
                 with st.spinner("Querying Gemini AI for threat breakdown..."):
+                    prompt = f"""
+                    You are an expert cybersecurity analyst for 'Beyond Vision', a scam, smishing, and phishing detection engine.
+                    Analyze the following text message and any embedded URLs for smishing, social engineering, credential harvesting, or fraudulent intent.
+
+                    Message/Content: "{st.session_state['last_input']}"
+                    Extracted Links: {res['urls']}
+
+                    Provide your analysis cleanly with:
+                    - Intent Verdict
+                    - Risk Score (0-100)
+                    - Psychological Tactics Used / URL Spoofing Analysis
+                    - Concise Threat Summary
+                    """
                     try:
-                        prompt = f"""
-                        You are an expert cybersecurity analyst for 'Beyond Vision', a scam, smishing, and phishing detection engine.
-                        Analyze the following text message and any embedded URLs for smishing, social engineering, credential harvesting, or fraudulent intent.
-
-                        Message/Content: "{st.session_state['last_input']}"
-                        Extracted Links: {res['urls']}
-
-                        Provide your analysis cleanly with:
-                        - Intent Verdict
-                        - Risk Score (0-100)
-                        - Psychological Tactics Used / URL Spoofing Analysis
-                        - Concise Threat Summary
-                        """
+                        # Primary API Call (Gemini)
+                        response = genai_client.models.generate_content(
+                            model="gemini-3.8-flash",
+                            contents=prompt,
+                        )
+                        st.session_state["llm_report"] = response.text
+                    except Exception as e:
+                        # Catch ALL API errors (429 Rate limits, 503 Overloads, etc.) and fallback to Groq
+                        st.toast("Gemini unavailable. Rerouting to Groq...", icon="🔄")
                         try:
-                            response = genai_client.models.generate_content(
-                                model="gemini-3.8-flash",
-                                contents=prompt,
-                            )
-                            st.session_state["llm_report"] = response.text
-                        except ResourceExhausted:
-                            st.toast("Gemini is busy. Switching to backup engine...", icon="🔄")
                             fallback = groq_client.chat.completions.create(
                                 messages=[{"role": "user", "content": prompt}],
                                 model="llama-3.1-8b-instant"
                             )
-                            st.session_state["llm_report"] = f"[Groq Backup Analysis]\n{fallback.choices[0].message.content}"
-                    except Exception as e:
-                        st.session_state["llm_report"] = f"⚠️ Gemini connection error: {str(e)}"
+                            st.session_state["llm_report"] = f"**[Groq Backup Analysis Activated]**\n\n{fallback.choices[0].message.content}"
+                        except Exception as fallback_error:
+                            st.session_state["llm_report"] = f"⚠️ All analytical engines are currently down.\n\nPrimary Error: {e}\nFallback Error: {fallback_error}"
 
             if st.session_state.get("llm_report"):
                 st.markdown("<h3 class='serif-header' style='margin-top: 20px; color: #D4AF37 !important;'>🤖 Deep LLM Intelligence Report</h3>", unsafe_allow_html=True)
