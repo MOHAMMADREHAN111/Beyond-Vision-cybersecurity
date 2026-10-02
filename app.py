@@ -5,7 +5,10 @@ import html as html_lib
 from urllib.parse import urlparse
 import streamlit as st
 from PIL import Image
-
+import streamlit as st
+import google.generativeai as genai
+from google.api_core.exceptions import ResourceExhausted
+from groq import Groq
 # ------------------------------------------------------------------
 # Optional-dependency imports
 # ------------------------------------------------------------------
@@ -322,7 +325,21 @@ def get_api_key():
     except Exception:
         pass
     return os.environ.get("GEMINI_API_KEY")
-
+     def get_groq_api_key():
+    try:
+        if "GROQ_API_KEY" in st.secrets:
+            return st.secrets["GROQ_API_KEY"]
+    except Exception:
+        pass
+    return os.environ.get("GROQ_API_KEY")
+@st.cache_resource(show_spinner=False)
+def get_genai_client(api_key):
+    if not GENAI_AVAILABLE or not api_key:
+        return None
+    try:
+        return genai.Client(api_key=api_key)
+    except Exception:
+        return None
 @st.cache_resource(show_spinner=False)
 def get_genai_client(api_key):
     if not GENAI_AVAILABLE or not api_key:
@@ -332,6 +349,20 @@ def get_genai_client(api_key):
     except Exception:
         return None
 
+# YOUR NEW GROQ CLIENT GOES HERE:
+@st.cache_resource(show_spinner=False)
+def get_groq_client(api_key):
+    if not api_key:
+        return None
+    try:
+        return Groq(api_key=api_key)
+    except Exception:
+        return None
+
+@st.cache_data(show_spinner=False)
+def run_ocr(image_bytes: bytes) -> str:
+    image = Image.open(io.BytesIO(image_bytes))
+    return pytesseract.image_to_string(image)
 @st.cache_data(show_spinner=False)
 def run_ocr(image_bytes: bytes) -> str:
     image = Image.open(io.BytesIO(image_bytes))
@@ -340,7 +371,8 @@ def run_ocr(image_bytes: bytes) -> str:
 ai_classifier = load_classifier()
 API_KEY = get_api_key()
 genai_client = get_genai_client(API_KEY)
-
+GROQ_API_KEY = get_groq_api_key()
+groq_client = get_groq_client(GROQ_API_KEY)
 # ==========================================
 # HEADER
 # ==========================================
@@ -450,11 +482,19 @@ if nav == "🔍 Threat Scanner":
                             3. Key Forensic Observations
                             4. Potential Scam Context
                             """
-                            response = genai_client.models.generate_content(
-    model="gemini-3.8-flash",
-    contents=[prompt, media_part],
-)
-                            st.session_state["deepfake_report"] = response.text
+                            try:
+                                response = genai_client.models.generate_content(
+                                    model="gemini-3.8-flash",
+                                    contents=[prompt, media_part],
+                                )
+                                st.session_state["deepfake_report"] = response.text
+                            except ResourceExhausted:
+                                st.toast("Gemini is busy. Switching to backup engine...", icon="🔄")
+                                fallback = groq_client.chat.completions.create(
+                                    messages=[{"role": "user", "content": prompt}],
+                                    model="llama-3.1-8b-instant"
+                                )
+                                st.session_state["deepfake_report"] = f"[Groq Backup Analysis]\n{fallback.choices[0].message.content}"
                         except Exception as e:
                             st.session_state["deepfake_report"] = None
                             st.error(f"Scan failed: {e}")
@@ -589,11 +629,19 @@ if nav == "🔍 Threat Scanner":
                         - Psychological Tactics Used / URL Spoofing Analysis
                         - Concise Threat Summary
                         """
-                        response = genai_client.models.generate_content(
-    model="gemini-3.8-flash",
-    contents=prompt,
-)
-                        st.session_state["llm_report"] = response.text
+                        try:
+                            response = genai_client.models.generate_content(
+                                model="gemini-3.8-flash",
+                                contents=prompt,
+                            )
+                            st.session_state["llm_report"] = response.text
+                        except ResourceExhausted:
+                            st.toast("Gemini is busy. Switching to backup engine...", icon="🔄")
+                            fallback = groq_client.chat.completions.create(
+                                messages=[{"role": "user", "content": prompt}],
+                                model="llama-3.1-8b-instant"
+                            )
+                            st.session_state["llm_report"] = f"[Groq Backup Analysis]\n{fallback.choices[0].message.content}"
                     except Exception as e:
                         st.session_state["llm_report"] = f"⚠️ Gemini connection error: {str(e)}"
 
