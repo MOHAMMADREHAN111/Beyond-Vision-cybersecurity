@@ -434,4 +434,4 @@ def heuristic_analysis(text: str) -> dict:
     matched = [k for k, pat in KEYWORD_PATTERNS if pat.search(text)]
     if matched:
         risk += min(35, 15 + 5 * len(matched))
-        flags.append("Triggered high-risk social-engineering keywords:
+        flags.append("Triggered high-risk social-engineering keywords: " + esc(", ".join(matched)) + ".")
