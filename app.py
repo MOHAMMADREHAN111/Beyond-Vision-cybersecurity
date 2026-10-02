@@ -7,6 +7,12 @@ from PIL import Image
 import streamlit as st
 from groq import Groq
 
+# ==========================================
+# MODEL CONFIGURATION (Edit these if APIs update)
+# ==========================================
+GEMINI_MODEL_ID = "gemini-1.5-flash" 
+GROQ_MODEL_ID = "llama-3.1-8b-instant"
+
 # ------------------------------------------------------------------
 # Optional-dependency imports
 # ------------------------------------------------------------------
@@ -47,7 +53,6 @@ div[class*="viewerBadge"] {display: none !important;}
 </style>
 """, unsafe_allow_html=True)  
     
-
 # ==========================================
 # STYLE — Dark Radial Canvas & Gold Accents
 # ==========================================
@@ -440,17 +445,17 @@ if nav == "🔍 Threat Scanner":
                         try:
                             # Primary API Call (Gemini)
                             response = genai_client.models.generate_content(
-                                model="gemini-3.8-flash",
+                                model=GEMINI_MODEL_ID,
                                 contents=[prompt, media_part],
                             )
                             st.session_state["deepfake_report"] = response.text
                         except Exception as e:
-                            # Catch ALL API errors (429 Rate limits, 503 Overloads, etc.) and fallback to Groq
+                            # Fallback to Groq
                             st.toast("Gemini unavailable. Switching to Groq fallback...", icon="🔄")
                             try:
                                 fallback = groq_client.chat.completions.create(
                                     messages=[{"role": "user", "content": prompt}],
-                                    model="llama3-8b-8192"
+                                    model=GROQ_MODEL_ID
                                 )
                                 st.session_state["deepfake_report"] = f"**[Groq Backup Analysis Activated]**\n\n{fallback.choices[0].message.content}"
                             except Exception as fallback_error:
@@ -566,7 +571,7 @@ if nav == "🔍 Threat Scanner":
                     safe_url = html_lib.escape(url)
                     st.markdown(f"<span class='link-chip'><a href='{safe_url}' target='_blank'>{safe_url}</a></span>", unsafe_allow_html=True)
 
-            # Deep LLM Text Intelligence Button (Restored AI Feature)
+            # Deep LLM Text Intelligence Button 
             st.markdown("<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
             llm_disabled = genai_client is None
             if st.button("✨ Run Deep LLM Contextual Analysis", disabled=llm_disabled):
@@ -587,17 +592,17 @@ if nav == "🔍 Threat Scanner":
                     try:
                         # Primary API Call (Gemini)
                         response = genai_client.models.generate_content(
-                            model="gemini-3.8-flash",
+                            model=GEMINI_MODEL_ID,
                             contents=prompt,
                         )
                         st.session_state["llm_report"] = response.text
                     except Exception as e:
-                        # Catch ALL API errors (429 Rate limits, 503 Overloads, etc.) and fallback to Groq
+                        # Fallback to Groq
                         st.toast("Gemini unavailable. Rerouting to Groq...", icon="🔄")
                         try:
                             fallback = groq_client.chat.completions.create(
                                 messages=[{"role": "user", "content": prompt}],
-                                model="llama3-8b-8192"
+                                model=GROQ_MODEL_ID
                             )
                             st.session_state["llm_report"] = f"**[Groq Backup Analysis Activated]**\n\n{fallback.choices[0].message.content}"
                         except Exception as fallback_error:
