@@ -325,7 +325,7 @@ def get_api_key():
     except Exception:
         pass
     return os.environ.get("GEMINI_API_KEY")
-     def get_groq_api_key():
+    def get_groq_api_key():
     try:
         if "GROQ_API_KEY" in st.secrets:
             return st.secrets["GROQ_API_KEY"]
